@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sync Wahoo activities from intervals.icu to Garmin Connect
+
+Parameters:
+  AthleteId:
+    Type: String
+    Description: Athlete ID to store in SSM parameter /cycling/intervals/athelete_id
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 120
+    MemorySize: 512
+
+Resources:
+  SyncFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: sync/
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource:
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/intervals/api_key
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/garmin/session
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/intervals/athelete_id
+            - Effect: Allow
+              Action:
+                - kms:Decrypt
+              Resource: "*"
+      Events:
+        HourlyTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+  IntervalAthleteIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /cycling/intervals/athlete_id
+      Type: String
+      Value: !Ref AthleteId
+      Description: Athlete ID used by the intervals sync
+
