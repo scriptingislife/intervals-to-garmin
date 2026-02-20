@@ -27,7 +27,7 @@ Resources:
               Resource:
                 - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/intervals/api_key
                 - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/garmin/session
-                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/intervals/athelete_id
+                - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cycling/intervals/athlete_id
             - Effect: Allow
               Action:
                 - kms:Decrypt
